@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Juego de Análisis Sintáctico</title>
+<style>
+body {
+    background: #1d1f21;
+    color: white;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    padding: 20px;
+    margin: 0;
+}
+h1 {
+    font-size: 1.6rem;
+    animation: fadeIn 1s ease forwards;
+}
+#frase-box {
+    font-size: 1.3rem;
+    margin: 20px auto;
+    padding: 15px;
+    background: #2b2f31;
+    width: 90%;
+    max-width: 600px;
+    border-radius: 10px;
+    animation: pop 0.4s ease;
+}
+.botones {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 20px;
+}
+button {
+    padding: 10px 14px;
+    background: #3b82f6;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: 0.3s;
+    flex: 1 1 40%; /* Botones adaptables */
+    min-width: 120px;
+}
+button:hover {
+    background: #1e40af;
+    transform: scale(1.05);
+}
+#resultado {
+    margin-top: 20px;
+    font-size: 1.2rem;
+    animation: fadeIn 0.5s ease;
+}
+
+/* Botón de descarga fijo arriba a la derecha */
+#descargar-btn {
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    background: #32d657;
+    color: #1d1f21;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    border: none;
+    cursor: pointer;
+    z-index: 1000;
+    transition: 0.3s;
+}
+#descargar-btn:hover {
+    background: #28b84f;
+}
+
+/* Animaciones */
+@keyframes pop {
+    0% { transform: scale(0.7); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Ajustes para móviles */
+@media (max-width: 480px) {
+    #frase-box {
+        font-size: 1.1rem;
+        padding: 12px;
+    }
+    button {
+        font-size: 0.85rem;
+        padding: 8px 10px;
+    }
+    h1 {
+        font-size: 1.3rem;
+    }
+    #descargar-btn {
+        padding: 8px 10px;
+        font-size: 0.85rem;
+    }
+}
+</style>
+</head>
+<body>
+
+<h1>Juego de Análisis de Oraciones</h1>
+
+<!-- Botón de descarga -->
+
+
+<div id="frase-box">Haz click en un botón para comenzar</div>
+
+<div class="botones">
+    <button onclick="elegir('Sujeto')">Sujeto</button>
+    <button onclick="elegir('Atributo')">Atributo</button>
+    <button onclick="elegir('Predicado')">Predicado</button>
+    <button onclick="elegir('CD')">Complemento Directo (CD)</button>
+    <button onclick="elegir('CI')">Complemento Indirecto (CI)</button>
+    <button onclick="elegir('CC')">Complemento Circunstancial (CC)</button>
+    <button onclick="elegir('CR')">Complemento de Régimen (CR)</button>
+    <button onclick="elegir('Agente')">Complemento Agente</button>
+</div>
+
+<div id="resultado"></div>
+
+<script>
+const frases = [
+    { texto: "El perro duerme en el jardín.", tipo: "Sujeto" },
+    { texto: "María es muy amable.", tipo: "Atributo" },
+    { texto: "Pedro abrió la ventana.", tipo: "CD" },
+    { texto: "Le di un regalo a mi hermana.", tipo: "CI" },
+    { texto: "Caminamos por el parque.", tipo: "CC" },
+    { texto: "Ella depende de ti.", tipo: "CR" },
+    { texto: "La pizza fue hecha por el chef.", tipo: "Agente" },
+    { texto: "Juan explicó la lección.", tipo: "Predicado" },
+    { texto: "Mi hermano compró un libro.", tipo: "CD" },
+    { texto: "Nosotros viajamos a Madrid en verano.", tipo: "CC" },
+    { texto: "El profesor explicó la tarea.", tipo: "Predicado" },
+    { texto: "La niña encontró un gatito.", tipo: "CD" },
+    { texto: "A Carlos le dieron un premio.", tipo: "CI" },
+    { texto: "El tren llegó temprano.", tipo: "Predicado" },
+    { texto: "La comida fue preparada por la abuela.", tipo: "Agente" },
+    { texto: "Ella confía en sus amigos.", tipo: "CR" },
+    { texto: "Mi familia es muy unida.", tipo: "Atributo" },
+    { texto: "El sol ilumina la habitación.", tipo: "Sujeto" },
+    { texto: "María trabaja en una panadería.", tipo: "CC" },
+    { texto: "Los niños rompieron la ventana.", tipo: "CD" },
+    { texto: "A Lucía le enviaron una carta.", tipo: "CI" },
+    { texto: "La película fue dirigida por un famoso cineasta.", tipo: "Agente" },
+    { texto: "Ellos dependen de su equipo.", tipo: "CR" },
+    { texto: "El gato es muy tranquilo.", tipo: "Atributo" },
+    { texto: "El viento movió las hojas.", tipo: "Predicado" },
+    { texto: "El niño leyó un cuento.", tipo: "CD" },
+    { texto: "Mi abuela cocina muy bien.", tipo: "Predicado" },
+    { texto: "Laura está cansada.", tipo: "Atributo" },
+    { texto: "El coche fue reparado por el mecánico.", tipo: "Agente" },
+    { texto: "Dimos las gracias al profesor.", tipo: "CI" },
+    { texto: "Vivimos cerca del colegio.", tipo: "CC" },
+    { texto: "Él sueña con viajar.", tipo: "CR" },
+    { texto: "La lluvia mojó las calles.", tipo: "Sujeto" },
+    { texto: "Mi primo ganó el partido.", tipo: "Predicado" },
+    { texto: "A Marta le prestaron apuntes.", tipo: "CI" },
+    { texto: "El actor es famoso.", tipo: "Atributo" },
+    { texto: "Colocaron los libros en la estantería.", tipo: "CD" },
+    { texto: "Salimos de casa temprano.", tipo: "CC" },
+    { texto: "El cuadro fue pintado por un artista local.", tipo: "Agente" },
+    { texto: "Confío plenamente en ti.", tipo: "CR" },
+    { texto: "Los alumnos escucharon al profesor.", tipo: "CD" },
+    { texto: "Mi perro está enfermo.", tipo: "Atributo" },
+    { texto: "El cartero entregó el paquete.", tipo: "Predicado" },
+    { texto: "A los niños les contaron un cuento.", tipo: "CI" },
+    { texto: "Estudiamos para el examen.", tipo: "CC" },
+    { texto: "El jefe habló con los empleados.", tipo: "CR" },
+    { texto: "La carta fue escrita por Ana.", tipo: "Agente" },
+    { texto: "El músico tocó la guitarra.", tipo: "CD" },
+    { texto: "Mi casa queda lejos.", tipo: "Predicado" }
+
+];
+
+let fraseActual = null;
+
+function nuevaFrase() {
+    fraseActual = frases[Math.floor(Math.random() * frases.length)];
+    document.getElementById("frase-box").textContent = fraseActual.texto;
+    document.getElementById("resultado").textContent = "";
+}
+
+function elegir(opcion) {
+    if (!fraseActual) {
+        nuevaFrase();
+        return;
+    }
+    if (opcion === fraseActual.tipo) {
+        document.getElementById("resultado").textContent = "✅ ¡Correcto!";
+        document.getElementById("resultado").style.color = "#32d657";
+    } else {
+        document.getElementById("resultado").textContent = "❌ Incorrecto. Era: " + fraseActual.tipo;
+        document.getElementById("resultado").style.color = "#ff6262";
+    }
+    setTimeout(nuevaFrase, 1500);
+}
+
+nuevaFrase();
+
+// Función para descargar página completa
+function descargarPagina() {
+    const contenido = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+    const blob = new Blob([contenido], { type: "text/html" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "juego.html";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+</script>
+</body>
+</html>
